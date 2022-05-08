@@ -1,0 +1,42 @@
+body {
+  color: white;
+  background: rgb(75, 14, 14);
+}
+h1 {
+  text-align: center;
+}
+.flex {
+  text-align: center;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+
+  justify-content: center;
+}
+label {
+display: inline-block;
+}
+
+#overlay {
+  background: rgb(75, 14, 14);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li {
+  padding: 15px 0;
+  font-size: 18px;
+}
+li:not(:last-of-type) {
+  border-bottom: 1px solid #fff;
+}

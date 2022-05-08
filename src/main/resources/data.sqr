@@ -1,0 +1,10 @@
+insert into users (username,password,enabled) values('super','$2a$12$OQmSSOA0Bqf3Uor31o3B1.bknR99Z8nhtwr9JAGmZMT4z1z9AHSqS',TRUE);
+insert into authorities (username,authority) values('super','ROLE_SUPER');
+
+insert into users (username,password,enabled) values('admin','$2a$12$hxJ6D3A95Ai5jEFePW/0TeQkANGn30tQaRwbTCvb.wqJQ4pNlNBca',TRUE);
+insert into authorities (username,authority) values('admin','ROLE_ADMIN');
+
+insert into users (username,password,enabled) values('jury','$2a$12$XgQSBn/4JETRwJYSWOZj0.h200yEq6vXfrOxH/nUvQKne8zv1Yg8O',TRUE);
+insert into authorities (username,authority) values('jury','JURY_JURY');
+
+
