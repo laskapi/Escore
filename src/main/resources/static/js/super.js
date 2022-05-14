@@ -1,116 +1,170 @@
-async function loadSuper(){
-    const main=document.getElementById("main");
+async function loadSuper() {
+    const main = document.getElementById("main");
+    main.innerHTML = "";
+    const response = await fetch('/api/competitions');
+    const competitions = await response.json();
+    main.appendChild(getCompetitionList(competitions));
 
-    const response = await fetch('/super');
-    const data= await response.json();
-    main.appendChild(getCompetitionList(data));
-
-    const users=await getUsers();
-    const data1= await users.json();
+    const users = await fetch('/api/users');
+    const data1 = await users.json();
     main.appendChild(getAddCompetitionElement(data1));
- //   users.then(value=>{addCompetitionElement(main,value)});
-     
 
 }
 
 
-function getCompetitionList(data){
- 
-    var ul=document.createElement("ul");
+function getCompetitionList(competitions) {
 
-    for (var i=0;i<data.length;i++){
+    var ul = document.createElement("ul");
+
+    for (var i = 0; i < competitions.length; i++) {
         var li = document.createElement('li');
-        var  button =document.createElement("button");
-        button.innerText="delete";
-        let id= data[i].id;
-        button.onclick=function(){deleteCompetition(id)};
-        li.innerHTML= data[i].name+' '+data[i].admin.username+' '+data[i].id;
+        var button = document.createElement("button");
+        button.innerText = "delete";
+        let id = competitions[i].id;
+        button.onclick = function () { deleteCompetition(id) };
+        li.innerHTML = competitions[i].name + ' ' + competitions[i].admin.username + ' ' + competitions[i].admin.password;
         li.appendChild(button);
         ul.appendChild(li);
     }
     return ul;
- 
+
 }
 
-  function getAddCompetitionElement(users){
+function getAddCompetitionElement(users) {
 
-    var div=document.createElement('div');
-    var newButton = document.createElement('button');
-    newButton.innerText="new Competition";
-    newButton.onclick=function(){onNewCompetition()};
-   
+    var div = document.createElement('div');
+  
     const form = document.createElement('form');
-    form.setAttribute(id='newCompetitionForm');
-    const compLabel= document.createElement('label');
-    compLabel.innerHTML="Competition name: ";
-    const compInput=document.createElement('input');
-    compInput.setAttribute('name',"Name");
+    form.setAttribute('id', "newCompetitionForm");
 
-    const adminLabel= document.createElement('label');
-    adminLabel.innerHTML="Choose admin: ";
-    const adminSelect= document.createElement('select');
-   
-   let user;
-    for (var i=0;i<users.length;i++){
-        const option= document.createElement('option');
-        option.text=users[i].username;
-        adminSelect.add(option,null);
-    }
-    
+    const compLabel = document.createElement('label');
+    compLabel.innerHTML = "Competition name: ";
+
+    const compInput = document.createElement('input');
+    compInput.setAttribute('id', 'compInput');
+    compInput.required = true;
+
+    const error1 = document.createElement('div');
+    error1.setAttribute('id', "error1");
+    error1.innerHTML = "Please type correct name";
+    error1.style.visibility = 'hidden';
+
+
+    const adminLabel = document.createElement('label');
+    adminLabel.innerHTML = "Choose admin: ";
+
+    const adminList = document.createElement('datalist');
+    adminList.setAttribute('id', 'adminList');
+
+    const error2 = document.createElement('div');
+    error2.setAttribute('id', "error2");
+    error2.innerHTML = "Please type correct name";
+    error2.style.visibility = 'hidden';
+
+
+    const adminInput = document.createElement('input');
+    adminInput.setAttribute('list', 'adminList');
+    adminInput.setAttribute('name', 'adminInput');
+    adminInput.required = true;
+
+    for (var i = 0; i < users.length; i++) {
+        const option = document.createElement('option');
+        option.text = users[i].username;
+        adminList.appendChild(option);
+    };
+
     const addButton = document.createElement('input');
-    addButton.value="Add";
+    addButton.value = "Add";
     addButton.setAttribute("type", "submit");
-    form.addEventListener('submit',function(e){
+    form.addEventListener('submit', function (e) {
         onAddCompetition();
         e.preventDefault();
-    }); 
+    });
 
 
     form.appendChild(compLabel);
     form.appendChild(compInput);
-    form.appendChild(adminLabel);
-    form.appendChild(adminSelect);
-    form.appendChild(addButton);
-    
+    form.appendChild(error1);
 
-    div.appendChild(newButton);
+    form.appendChild(adminLabel);
+    form.appendChild(adminInput);
+    form.appendChild(adminList);
+    form.appendChild(error2);
+
+    form.appendChild(addButton);
+
     div.appendChild(form);
 
     return div;
+}
+
+async function onAddCompetition() {
+    const result = validateCompForm();
+    if (result == null) {
+        return;
     }
-    
-function onAddCompetition(){
-    const form=document.getElementById('newCompetitionForm');
-    
+
+    const url = '/api/competitions';
+    const request = new Request(url, {
+        method: 'POST',
+        body: JSON.stringify(result),
+        headers: new Headers({
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        })
+    });
+    fetch(request).then(res => res.json())
+        .then(res=>{ alert("Autogenerated password : "+res); loadSuper()}, res => alert("Error adding Competition: " + res.status)
+        );
+
+
 }
 
-async function getUsers(){
-    const response= await fetch('/api/super/');
-    return response;
+function validateCompForm() {
+    const form = document.forms.namedItem("newCompetitionForm");
+    let compName = form.elements["compInput"];
+    let compAdmin = form.elements["adminInput"];
+    const error1 = document.getElementById("error1");
+    const error2 = document.getElementById("error2");
+
+    const pattern = /^[a-zA-Z0-9]+$/;
+    let result = true;
+    if (!compName.value.match(pattern)) {
+        error1.style.visibility = 'visible';
+        result = null;
+    }
+    else {
+        error1.style.visibility = 'hidden';
+    }
+    if (!compAdmin.value.match(pattern)) {
+        error2.style.visibility = 'visible';
+        result = null;
+    }
+    else {
+        error2.style.visibility = 'hidden';
+    }
+    if (result != null) {
+        result = { comp: compName.value, admin: compAdmin.value };
+    }
+    return result;
 }
 
 
-async function deleteCompetition(id){
-    let response = await fetch('/super/'+id ,{method:'DELETE',
-    headers: { 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') },});
-   if (response.ok){
+
+async function deleteCompetition(id) {
+    let response = await fetch('/api/super/' + id, {
+        method: 'DELETE',
+        headers: { 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') },
+    });
+    if (response.ok) {
         loadSuper();
     }
-    else{
- 
-        alert("Error deleting Competition: "+response.status);
+    else {
+            console.log(response.statusText);
+            alert("Error deleting Competition: " + response.status);
     }
 
 }
-
-
-function addCompetition(){
-
-    addComp=document.createElement('div');
-    document.getElementById('div');
-}
-
-
 
 
 function getCookie(cName) {
@@ -119,7 +173,7 @@ function getCookie(cName) {
     const cArr = cDecoded.split('; ');
     let res;
     cArr.forEach(val => {
-      if (val.indexOf(name) === 0) res = val.substring(name.length);
+        if (val.indexOf(name) === 0) res = val.substring(name.length);
     })
     return res
-  }
+}

@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"username","password"})})
 @Data
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor(access = AccessLevel.PUBLIC, force = true)
@@ -22,9 +23,9 @@ import java.util.List;
 public class User implements UserDetails{
 
     @Id
- //  @GeneratedValue(strategy = GenerationType.AUTO)
-    private final Long id;
-    @Column(unique = true)
+   @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+ //   @Column(unique = true)
     private final String username;
     private final String password;
 

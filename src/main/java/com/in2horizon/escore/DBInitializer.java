@@ -35,24 +35,22 @@ public class DBInitializer {
         return (args) -> {
             System.out.println("application started");
 
-            Authority auth = new Authority(1L, "SUPER");
-            authRepository.save(auth);
-            auth = new Authority(2L, "ADMIN");
-            authRepository.save(auth);
+            Authority authSuper = new Authority("SUPER");
+            authSuper=authRepository.save(authSuper);
+            Authority authAdmin = new Authority("ADMIN");
+            authAdmin=authRepository.save(authAdmin);
 
-            User user = new User(1L, "super", encoder.encode("super")
-                    , authRepository.findById(1L).get());
-            userRepository.save(user);
+            User user1 = new User("super", encoder.encode("super")
+                    ,authSuper);
+            user1=userRepository.save(user1);
 
+            User user2 = new User( "admin", encoder.encode("admin")
+                    , authAdmin);
+            user2=userRepository.save(user2);
 
-            user = new User(2L, "admin", encoder.encode("admin")
-                    , authRepository.findById(2L).get());
-            userRepository.save(user);
-
-
-            Competition competition = new Competition(0L, "violin", userRepository.findById(1L).get());
+            Competition competition = new Competition( "violin", user1);
             compRepository.save(competition);
-            competition = new Competition(1L, "cello", userRepository.findById(1L).get());
+            competition = new Competition( "cello", user2);
             compRepository.save(competition);
 
 

@@ -20,11 +20,10 @@ public UserRepositoryUserDetailsService(UserRepository userRepo){
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user=userRepo.findByUsername(username);
+        User user=userRepo.findByUsername(username).get(0);
         if(user!=null){
             return user;
         }
         throw new UsernameNotFoundException("Użytkownik "+ username+ " nie istnieje");
-
     }
 }

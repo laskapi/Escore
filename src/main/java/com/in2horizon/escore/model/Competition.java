@@ -15,8 +15,8 @@ import javax.persistence.*;
 public class Competition {
 
     @Id
-   // @GeneratedValue(strategy = GenerationType.AUTO)
-    private final Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     @Column(unique = true)
     private final String name;
     @ManyToOne(fetch = FetchType.EAGER,optional = false)
