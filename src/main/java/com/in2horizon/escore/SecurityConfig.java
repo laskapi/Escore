@@ -3,6 +3,7 @@ package com.in2horizon.escore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -45,30 +46,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   */
     }
 
+
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
                 .antMatchers("/h2-console/**")
                 .permitAll()
-              /*  .antMatchers("/super/**")
+                .antMatchers("/super/**")
                   .hasAnyAuthority("SUPER")
-              */  .antMatchers("/**")
-                //.hasAnyAuthority("SUPER","ADMIN")
-                .permitAll()
-                 .and().formLogin();
+                .antMatchers("/**")
+                .hasAnyAuthority("SUPER","ADMIN")
+               // .permitAll()
+                 .and().httpBasic();
+
+     //   http.csrf()
+      //.ignoringAntMatchers("/h2-console/**");
 
 
-        http.csrf()
-                .ignoringAntMatchers("/h2-console/**");
-        http.headers()
-                .frameOptions()
-                .sameOrigin();
+        http.cors();//.and().
+                http.csrf().disable();
 
-     //   http.cors().and().csrf().disable();
-
-        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+   //     http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
+
 
     @Bean
     public PasswordEncoder encoder() {

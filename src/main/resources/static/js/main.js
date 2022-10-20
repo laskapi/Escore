@@ -1,6 +1,6 @@
 async function loadContent(){
   loadSuper();
- /*  const response = await fetch('/api/user');
+ /*  const response = await fetch('/api/auth');
 
     const authority = (await response.json()).authority;
 

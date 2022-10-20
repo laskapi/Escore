@@ -5,7 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 
 @Configuration
 
@@ -41,11 +47,11 @@ public class DBInitializer {
             authAdmin=authRepository.save(authAdmin);
 
             User user1 = new User("super", encoder.encode("super")
-                    ,authSuper);
+                    ,  List.of(authSuper));
             user1=userRepository.save(user1);
 
             User user2 = new User( "admin", encoder.encode("admin")
-                    , authAdmin);
+                    ,  List.of(authAdmin));
             user2=userRepository.save(user2);
 
             Competition competition = new Competition( "violin", user1);

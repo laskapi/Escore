@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+
 import javax.persistence.*;
 
 @Entity
@@ -22,5 +23,6 @@ public class Competition {
     @ManyToOne(fetch = FetchType.EAGER,optional = false)
     @JoinColumn
     private final User admin;
-
+    @Column(columnDefinition = "boolean default false")
+    private final Boolean archived=false;
 }

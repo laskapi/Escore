@@ -1,4 +1,6 @@
 async function loadSuper() {
+  
+    
     const main = document.getElementById("main");
     main.innerHTML = "";
     const response = await fetch('/api/competitions');
@@ -7,7 +9,8 @@ async function loadSuper() {
 
     const users = await fetch('/api/users');
     const data1 = await users.json();
-    main.appendChild(getAddCompetitionElement(data1));
+    getAddCompetitionElement(data1);
+  //  main.appendChild(getAddCompetitionElement(data1));
 
 }
 
@@ -33,6 +36,29 @@ function getCompetitionList(competitions) {
 function getAddCompetitionElement(users) {
 
     var div = document.createElement('div');
+    const form= `<form id="newCompetitionForm">
+                <label>Competition name:</label><input id="compInput" required=true></input>
+                <div id="error1" style=visibility:hidden>Please type correct name</div>
+                <label>Choose admin:</label><datalist id="adminList"></dataList>
+                <div id="error2" style=visibility:hidden>Please type correct name</div>
+                <input list="adminList" name="adminInput" required=true></input>
+                <input type=submit value="Add" oncLick="onAddCompetition();return false;"></input>
+                </form>`;
+    div.innerHTML=form;
+    main.appendChild(div);
+
+    const adminList=document.getElementById("adminList");
+
+    for (var i = 0; i < users.length; i++) {
+        const option = document.createElement('option');
+        option.text = users[i].username;
+        adminList.appendChild(option);
+    };
+
+    return div;
+
+
+   /*  var div = document.createElement('div');
   
     const form = document.createElement('form');
     form.setAttribute('id', "newCompetitionForm");
@@ -95,7 +121,7 @@ function getAddCompetitionElement(users) {
 
     div.appendChild(form);
 
-    return div;
+    return div; */
 }
 
 async function onAddCompetition() {

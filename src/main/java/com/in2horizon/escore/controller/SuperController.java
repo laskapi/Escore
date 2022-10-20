@@ -1,23 +1,23 @@
 package com.in2horizon.escore.controller;
 
 import com.in2horizon.escore.model.*;
-import net.minidev.json.JSONArray;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.lang.reflect.Field;
+import java.util.*;
 
+@Slf4j
 @RestController
+@CrossOrigin(value = "http://localhost:4200")
 public class SuperController {
 
     @Autowired
@@ -29,80 +29,115 @@ public class SuperController {
     @Autowired
     PasswordEncoder encoder;
 
-    Logger logger = LoggerFactory.getLogger(SuperController.class);
+    //Logger logger = LoggerFactory.getLogger(SuperController.class);
 
-    @GetMapping("/api/user")
-    public JSONObject getAuthority(@AuthenticationPrincipal User user) {
-/*
-        JSONArray jsonArray = new JSONArray();
-        user.getAuthorities().stream().forEach(auth->jsonArray.appendElement(auth.getAuthority()));
-        return jsonArray;
-*/
-//        return user.getAuthorities().iterator().next().getAuthority();
-
-        JSONObject jObject = new JSONObject();
-        jObject.appendField("authority", user.getAuthorities().iterator().next().getAuthority());
-        return jObject;
-    }
-
-    @GetMapping("/api/users")
+    @GetMapping("/users")
     public Iterable<User> getUsers() {
         return userRepo.findAll();
     }
 
-    @GetMapping("/api/competitions")
-    public JSONArray getCompetitions() {
-        JSONArray jArray = new JSONArray();
-        List<Competition> result = StreamSupport.stream(compRepo.findAll().spliterator(), false).collect(Collectors.toList());
-        jArray.addAll(result);
-        return jArray;
-    }
 
-    //@CrossOrigin("*")
-    @PostMapping("/api/competitions")
-    public String addCompetition(@RequestBody JSONObject/*Map<String,String>*/ jsonComp) {
-
-        Authority auth = authRepo.findByAuthority("ADMIN");
-        User user;
-        String rawPass;
-        do {
-            rawPass=generatePassword(100);
-
-            user = new User(jsonComp.getAsString("admin"), encoder.encode(rawPass), auth);
-
-        } while (!userRepo.findByUsernameAndPassword(user.getUsername(), user.getPassword()).isEmpty());
-
-
-        try {
-            user = userRepo.save(user);
-            Competition competition = new Competition(jsonComp.getAsString("comp"), user);
-            compRepo.save(competition);
-            return rawPass;
-        } catch (Exception e) {
-            logger.error("Error creating competition: " + e.getMessage());
+    @GetMapping("/competitions")
+    public Iterable<Competition> getCompetitions() {
+        return compRepo.findAll();
 
         }
 
-      /*  System.out.println("after add:");
-        compRepo.findAll().forEach(us -> System.out.println(us.toString()));
-*/
-        return null;//JSONObject.toJSONString(jsonComp);
+    @GetMapping("/competitions/{user}")
+    public Iterable<Competition> getCompetitionsForAdmin(@PathVariable String user) {
+             return compRepo.findByAdminUsername(user);
     }
 
-    @DeleteMapping("/api/super/{id}")
+        @PostMapping("/competitions")
+    public void addCompetition(@RequestBody JSONObject/*Map<String,String>*/ jsonComp) {
+
+        try {
+            User admin = userRepo.findByUsername(jsonComp.getAsString("admin")).get(0);
+            Competition competition = new Competition(jsonComp.getAsString("name"), admin);
+
+            compRepo.save(competition);
+
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @DeleteMapping("/super/{id}")
     public void deleteCompetition(@PathVariable Long id) {
         Competition comp = (compRepo.findById(id)).get();
         compRepo.delete(comp);
 
-       /* System.out.println("after delete:");
-        compRepo.findAll().forEach(us -> System.out.println(us.toString()));
-*/
     }
+
+    @PatchMapping("/competitions/{competitionId}")
+    ResponseEntity<Competition> patchCompetition(@PathVariable Long competitionId, @RequestBody /*Map<String, Object>*/ Competition comp) {
+        log.info("tererereerer"+ comp);
+
+        compRepo.save(comp);
+       return  new ResponseEntity<Competition>(comp, HttpStatus.OK);
+    }
+
+/*
+
+    @PatchMapping("/competitions/{competitionId}")
+    ResponseEntity<Competition> patchCompetition(@PathVariable Long competitionId, @RequestBody Map<String, Object> fields) {
+        log.info("tererereerer"+ fields);
+
+
+        if (competitionId <= 0 || fields == null || fields.isEmpty() || !fields.get("id").equals(competitionId)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Competition comp = (compRepo.findById(competitionId)).get();
+
+        if( comp == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+
+        fields.forEach((k, v) -> {
+            // use reflection to get field k on object and set it to value v
+
+            Field field = ReflectionUtils.findField(Competition.class, k); // find field in the object class
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, comp, v); // set given field for defined object to value V
+        });
+
+        compRepo.save(comp);
+        return new ResponseEntity<>(comp, HttpStatus.OK);
+    }
+*/
+
+
+
 
     private String generatePassword(int range) {
         Random random = new Random();
         String password = Integer.toString(random.nextInt(range));
         return password;
     }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
