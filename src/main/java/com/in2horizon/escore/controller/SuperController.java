@@ -3,6 +3,8 @@ package com.in2horizon.escore.controller;
 import com.in2horizon.escore.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -14,12 +16,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:4200")
 public class SuperController {
 
+    private static final String TAG = "superController";
     @Autowired
     CompetitionRepository compRepo;
     @Autowired
@@ -36,24 +40,62 @@ public class SuperController {
         return userRepo.findAll();
     }
 
+/*
+    @PutMapping("/users")
+    public ResponseEntity updateUser(@RequestBody User user) {
+
+        if (userRepo.findById(user.getId()).isPresent()) {
+            User updated = userRepo.findById(user.getId()).get();
+
+            updated.setUsername(user.getUsername());
+            updated.setPassword(user.getPassword());
+            updated.setEmail(user.getEmail());
+            updated.setAuthorities(user.getAuthorities());
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
+    }
+*/
+
+/*
+    @DeleteMapping(value = "/users/{id}")
+    public ResponseEntity deleteUser(@PathVariable Long id) {
+
+        Optional<User> user = userRepo.findById(id);
+        if (user.isPresent()) {
+            if (user.get().getCompetitions().isEmpty()){
+                userRepo.deleteById(id);
+                return new ResponseEntity(HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity(HttpStatus.PARTIAL_CONTENT);
+            }
+        }
+        else{
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+    }
+*/
+
 
     @GetMapping("/competitions")
     public Iterable<Competition> getCompetitions() {
         return compRepo.findAll();
 
-        }
-
-    @GetMapping("/competitions/{user}")
-    public Iterable<Competition> getCompetitionsForAdmin(@PathVariable String user) {
-             return compRepo.findByAdminUsername(user);
     }
 
-        @PostMapping("/competitions")
+    //  @GetMapping("/competitions/{user}")
+    //  public Iterable<Competition> getCompetitionsForAdmin(@PathVariable String user) {
+//        return compRepo.findByAdminUsername(user);
+    //  }
+
+    @PostMapping("/competitions")
     public void addCompetition(@RequestBody JSONObject/*Map<String,String>*/ jsonComp) {
 
         try {
             User admin = userRepo.findByUsername(jsonComp.getAsString("admin")).get(0);
-            Competition competition = new Competition(jsonComp.getAsString("name"), admin);
+            Competition competition = new Competition(jsonComp.getAsString("name")/*, admin*/);
 
             compRepo.save(competition);
 
@@ -72,10 +114,10 @@ public class SuperController {
 
     @PatchMapping("/competitions/{competitionId}")
     ResponseEntity<Competition> patchCompetition(@PathVariable Long competitionId, @RequestBody /*Map<String, Object>*/ Competition comp) {
-        log.info("tererereerer"+ comp);
+        log.info("tererereerer" + comp);
 
         compRepo.save(comp);
-       return  new ResponseEntity<Competition>(comp, HttpStatus.OK);
+        return new ResponseEntity<Competition>(comp, HttpStatus.OK);
     }
 
 /*
@@ -107,8 +149,6 @@ public class SuperController {
         return new ResponseEntity<>(comp, HttpStatus.OK);
     }
 */
-
-
 
 
     private String generatePassword(int range) {

@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface CompetitionRepository extends CrudRepository<Competition,Long> {
 
-    List<Competition> findByAdminUsername(String username);
+  //  List<Competition> findByAdminUsername(String username);
+    //List<Competition> findByAdminId(Long id);
+
 }
 

@@ -36,9 +36,8 @@ class EscoreApplicationTests {
 
             assertEquals(HttpURLConnection.HTTP_OK, responseCode);
         } catch (IOException e) {
-       assertEquals(1,2);
-            e.getStackTrace();
-        }
+            e.printStackTrace();
+         }
 
 
 
