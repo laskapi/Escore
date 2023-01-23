@@ -17,11 +17,11 @@ public class RoleAssoc {
     @EmbeddedId
     RoleAssocKey id=new RoleAssocKey();
 
-    @ManyToOne(cascade=CascadeType.MERGE)
+    @ManyToOne/*(cascade=CascadeType.PERSIST)*/
     @MapsId("competitionId")
     Competition competition;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne/*(cascade = CascadeType.PERSIST)*/
     @MapsId("userId")
     User user;
 

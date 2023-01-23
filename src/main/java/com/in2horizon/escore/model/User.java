@@ -2,13 +2,9 @@ package com.in2horizon.escore.model;
 
 
 import lombok.*;
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -19,33 +15,37 @@ import java.util.Set;
 @Entity
 @ToString
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@NoArgsConstructor(access = AccessLevel.PUBLIC, force = true)
+
+@Setter
+@Getter
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "password", "email"})})
 public class User implements UserDetails {
 
-    //@Autowired
-    //EntityManager em;
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-    final private Long id;
-
-    @Getter
     @NonNull
     private String username;
 
-    @Getter
     @NonNull
     private String password;
 
     @NonNull
     private String email;
 
-    @OneToMany(mappedBy = "user")
-@ToString.Exclude
-    private Set<RoleAssoc> roleAssocs = new HashSet<RoleAssoc>();
+@NonNull
+//    @ElementCollection
 
+@ManyToMany(/*mappedBy = "authority"*/)
+    private Set<Authority> authorities;
+
+
+   /* @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private Set<RoleAssoc> roleAssocs = new HashSet<RoleAssoc>();
+*/
 
     /* @JoinColumn
      @ElementCollection(fetch = FetchType.EAGER)
@@ -71,26 +71,12 @@ public class User implements UserDetails {
       private Set<Competition> competitions = new HashSet<>();
   */
 
-    /*
-    public User(String username, String password, String email*//*, Set<Authority> authorities*//*) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-       // this.authorities = authorities;
-    }
-*/
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//       List<RoleAssoc> roleAssocs = roleAssocRepo.findAllByUser(this);
-
-        List<Authority> result = roleAssocs.stream().map(it -> it.authority).distinct().toList();
-        return result;
-/*
-       Authority authority = new Authority("TEST");
-        assert authority != null;
-        return List.of(
-                authority);
-*/
+ //        List<Authority> result = roleAssocs.stream().map(it -> it.authority).distinct().toList();
+        return authorities;
     }
 
 

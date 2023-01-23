@@ -1,9 +1,9 @@
 package com.in2horizon.escore;
 
+//import com.in2horizon.escore.model.DataService;
 import com.in2horizon.escore.model.User;
 import com.in2horizon.escore.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,17 +11,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserRepositoryUserDetailsService implements UserDetailsService {
-    private final UserRepository userRepo;
+
+    //@Autowired
+    //DataService dataService;
 
     @Autowired
-public UserRepositoryUserDetailsService(UserRepository userRepo){
-    this.userRepo=userRepo;
+    UserRepository userRepository;
+
+/*
+    @Autowired
+public UserRepositoryUserDetailsService(DataService dataService){
+    this.dataService=dataService;
 }
+*/
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user=userRepo.findByUsername(username).get(0);
+        User user=userRepository.findByUsername(username).get(0);//dataService.getUserByName(username);
         if(user!=null){
             return user;
         }

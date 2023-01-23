@@ -7,4 +7,5 @@ import java.util.List;
 public interface RoleAssocRepository extends CrudRepository<RoleAssoc, RoleAssocKey> {
 
 List<RoleAssoc> findAllByUser(User user);
+List<RoleAssoc> findAllByCompetition(Competition competition);
 }

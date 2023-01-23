@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -54,22 +55,41 @@ public class DBInitializer {
             //--------------------------
 //--------------------------------------
 
-            User user1 = new User(1L,"super", encoder.encode("super"),
-                          "super@in2horizon.com"  /*,  Set.of(authSuper)*/);
-            //user1=userRepository.save(user1);
+            User user1 = new User("super", encoder.encode("super"),
+                          "super@in2horizon.com"  ,  Set.of(authSuper));
+            user1=userRepository.save(user1);
 
-            User user2 = new User( 2L,"admin", encoder.encode("admin"),
-                    "admin@in2horizon.com"/*,  Set.of(authAdmin)*/);
-            //user2=userRepository.save(user2);
+            User user2 = new User( "admin", encoder.encode("admin"),
+                    "admin@in2horizon.com",  Set.of(authAdmin));
+            user2=userRepository.save(user2);
+
+
+            User user3 = new User( "delete", encoder.encode("delete"),
+                    "delete@in2horizon.com",  Set.of(authAdmin));
+            userRepository.save(user3);
+
+            Competition hidden = new Competition( Competition.HIDDEN);
+            compRepository.save(hidden);
+
 
             Competition competition1 = new Competition( "violin"/*, user1*/);
-            //compRepository.save(competition);
+            compRepository.save(competition1);
             Competition competition2 = new Competition( "cello"/*, user2*/);
-            //compRepository.save(competition);
+            compRepository.save(competition2);
+
+
+
+            //-------------for superuser
+            RoleAssoc superAssoc= new RoleAssoc(hidden,user1,authSuper);
+            roleAssocRepository.save(superAssoc);
+            //--------------------------
+
 
             RoleAssoc roleAssoc1=new RoleAssoc(competition1,user1,authAdmin);
-            roleAssocRepository.save(roleAssoc1);
+            RoleAssoc roleAssoc2=new RoleAssoc(competition2,user2,authAdmin);
 
+            roleAssocRepository.save(roleAssoc1);
+            roleAssocRepository.save(roleAssoc2);
 
 
      /*           user.setUsername("user2");

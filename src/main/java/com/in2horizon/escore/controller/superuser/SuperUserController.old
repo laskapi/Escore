@@ -1,31 +1,26 @@
-package com.in2horizon.escore.controller;
+package com.in2horizon.escore.controller.superuser;
 
-import com.in2horizon.escore.model.*;
+import com.in2horizon.escore.model.AuthorityRepository;
+import com.in2horizon.escore.model.RoleAssocRepository;
+import com.in2horizon.escore.model.User;
+import com.in2horizon.escore.model.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.Random;
 
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:4200")
-public class SuperController {
+public class SuperUserController {
 
-    private static final String TAG = "superController";
     @Autowired
-    CompetitionRepository compRepo;
+    RoleAssocRepository roleRepo;
     @Autowired
     UserRepository userRepo;
     @Autowired
@@ -37,88 +32,78 @@ public class SuperController {
 
     @GetMapping("/users")
     public Iterable<User> getUsers() {
-        return userRepo.findAll();
+        Iterable<User> users = userRepo.findAll();
+        log.info("loaded users: " + users.toString());
+        return users;
     }
 
-/*
-    @PutMapping("/users")
-    public ResponseEntity updateUser(@RequestBody User user) {
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
+        Optional<User> user = userRepo.findById(id);
 
-        if (userRepo.findById(user.getId()).isPresent()) {
-            User updated = userRepo.findById(user.getId()).get();
-
-            updated.setUsername(user.getUsername());
-            updated.setPassword(user.getPassword());
-            updated.setEmail(user.getEmail());
-            updated.setAuthorities(user.getAuthorities());
-            return new ResponseEntity(HttpStatus.OK);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
-*/
 
-/*
+
+    @PostMapping(value = "/users",produces = "application/json")
+    public ResponseEntity<String> addUser(@RequestBody User user) {
+        User existing = userRepo.findById(user.getId()).orElse(null);
+        if (existing == null) {
+            if (user.getUsername().isEmpty()
+                    || user.getPassword().isEmpty()
+                    || user.getEmail().isEmpty()) {
+                return new ResponseEntity<String>("Please fill all required fields",HttpStatus.BAD_REQUEST);
+            }
+            log.info(userRepo.save(user).toString());
+            return ResponseEntity.ok("User added");
+        }
+        return new ResponseEntity<String>("User already exists",HttpStatus.CONFLICT);
+    }
+
+    @PutMapping("/users")
+    public ResponseEntity<String> updateUser(@RequestBody User user) {
+        User existingUser = userRepo.findById(user.getId()).orElse(null);
+        if (existingUser != null) {
+
+            existingUser.setUsername(user.getUsername());
+               existingUser.setPassword(user.getPassword());
+            existingUser.setEmail(user.getEmail());
+            //   existingUser.setAuthorities(user.getAuthorities());
+
+            userRepo.save(existingUser);
+            return ResponseEntity.ok("user updated");
+        }
+        return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+
+
+    }
+
     @DeleteMapping(value = "/users/{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
 
         Optional<User> user = userRepo.findById(id);
         if (user.isPresent()) {
-            if (user.get().getCompetitions().isEmpty()){
+            if (roleRepo.findAllByUser(user.get()).isEmpty()) {
                 userRepo.deleteById(id);
                 return new ResponseEntity(HttpStatus.OK);
-            }
-            else{
+
+            } else {
                 return new ResponseEntity(HttpStatus.PARTIAL_CONTENT);
             }
-        }
-        else{
+        } else {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
     }
-*/
 
 
-    @GetMapping("/competitions")
-    public Iterable<Competition> getCompetitions() {
-        return compRepo.findAll();
 
-    }
 
-    //  @GetMapping("/competitions/{user}")
-    //  public Iterable<Competition> getCompetitionsForAdmin(@PathVariable String user) {
-//        return compRepo.findByAdminUsername(user);
-    //  }
 
-    @PostMapping("/competitions")
-    public void addCompetition(@RequestBody JSONObject/*Map<String,String>*/ jsonComp) {
-
-        try {
-            User admin = userRepo.findByUsername(jsonComp.getAsString("admin")).get(0);
-            Competition competition = new Competition(jsonComp.getAsString("name")/*, admin*/);
-
-            compRepo.save(competition);
-
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @DeleteMapping("/super/{id}")
-    public void deleteCompetition(@PathVariable Long id) {
-        Competition comp = (compRepo.findById(id)).get();
-        compRepo.delete(comp);
-
-    }
-
-    @PatchMapping("/competitions/{competitionId}")
-    ResponseEntity<Competition> patchCompetition(@PathVariable Long competitionId, @RequestBody /*Map<String, Object>*/ Competition comp) {
-        log.info("tererereerer" + comp);
-
-        compRepo.save(comp);
-        return new ResponseEntity<Competition>(comp, HttpStatus.OK);
-    }
 
 /*
 

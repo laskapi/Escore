@@ -11,12 +11,13 @@ import javax.persistence.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
-//@AllArgsConstructor(access = AccessLevel.PRIVATE)
+
 @Table(name = "authorities")
 public class Authority implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private final String authority;
 
     /*@ManyToMany(mappedBy = "authorities")

@@ -1,0 +1,137 @@
+package com.in2horizon.escore.controller.superuser;
+
+import com.in2horizon.escore.model.Competition;
+import com.in2horizon.escore.model.CompetitionRepository;
+import com.in2horizon.escore.model.RoleAssoc;
+import com.in2horizon.escore.model.RoleAssocRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+@Slf4j
+@RestController
+public class SuperCompController {
+
+    @Autowired
+    CompetitionRepository compRepo;
+    @Autowired
+    RoleAssocRepository roleAssocRepo;
+
+    @GetMapping("/competitions")
+    public Iterable<Competition> getCompetitions() {
+        log.info("comps::entering ");
+        Iterable<Competition> comps = compRepo.findAll();
+        comps = excludeHiddenCompetition(comps);
+        log.info("comps:: " + comps);
+        return comps;
+
+    }
+
+    @GetMapping("/competitions/{id}")
+    public ResponseEntity<Competition> getCompetition(@PathVariable Long id) {
+        Optional<Competition> comp = compRepo.findById(id);
+        if (comp.get().getName().equals(Competition.HIDDEN)) {
+            throw new NoSuchElementException();
+        }
+        try {
+            return ResponseEntity.ok(comp.orElseThrow());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+
+    }
+
+/*
+    @GetMapping("/competitions/{user}")
+    public Iterable<Competition> getCompetitionsForAdmin(@PathVariable String user) {
+        return compRepo.findByAdminUsername(user);
+    }
+*/
+
+
+    @PostMapping(value = "/competitions")
+    public ResponseEntity<String> addCompetition(@RequestBody Competition comp) {
+        Competition existing = compRepo.findById(comp.getId()).orElse(null);
+        if (existing == null) {
+            /*if (comp.getName().isEmpty())
+
+                    || comp.getPassword().isEmpty()
+                    || comp.getEmail().isEmpty())
+            {
+                return new ResponseEntity<String>("Please fill all required fields", HttpStatus.BAD_REQUEST);
+            }
+            */
+            log.info(compRepo.save(comp).toString());
+            return ResponseEntity.ok("Competition added");
+        }
+        return new ResponseEntity<String>("Competition already exists", HttpStatus.CONFLICT);
+    }
+
+    @Transactional
+    @PutMapping("/competitions")
+    public ResponseEntity<String> updateCompetition(@RequestBody Competition comp) {
+        Competition existing = compRepo.findById(comp.getId()).orElse(null);
+        if (existing != null) {
+            existing.setName(comp.getName());
+            existing.setAdmin(comp.getAdmin());
+            existing.setUsers(comp.getUsers());
+               log.info("saved Users for competition: "+compRepo.save(existing).getUsers().toString());
+            return ResponseEntity.ok("user updated");
+        }
+        return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+
+
+    }
+
+
+    @DeleteMapping("/competitions/{id}")
+    public ResponseEntity<Void> deleteCompetition(@PathVariable Long id) {
+        try {
+            Competition comp = (compRepo.findById(id)).get();
+            List<RoleAssoc> assocs = roleAssocRepo.findAllByCompetition(comp);
+            assocs.forEach(roleAssocRepo::delete);
+
+            compRepo.delete(comp);
+            return ResponseEntity.ok().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+
+   /* @PostMapping("/competitions")
+    public void addCompetition(@RequestBody JSONObject*//*Map<String,String>*//* jsonComp) {
+
+        try {
+            User admin = userRepo.findByUsername(jsonComp.getAsString("admin")).get(0);
+            Competition competition = new Competition(jsonComp.getAsString("name")*//*, admin*//*);
+
+            compRepo.save(competition);
+
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+
+    }*/
+
+  /*  @PatchMapping("/competitions/{competitionId}")
+    ResponseEntity<Competition> patchCompetition(@PathVariable Long competitionId, @RequestBody *//*Map<String, Object>*//* Competition comp) {
+        log.info("tererereerer" + comp);
+
+        compRepo.save(comp);
+        return new ResponseEntity<Competition>(comp, HttpStatus.OK);
+    }*/
+
+
+ 
+
+}
