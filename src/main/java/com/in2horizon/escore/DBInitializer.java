@@ -5,12 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -29,21 +25,13 @@ public class DBInitializer {
 
     @Autowired
     PasswordEncoder encoder;
-    /*
-        @Autowired
-        private AuthUserDetailsRepository authUserDetailsRepository;
-        @Autowired
-        private AuthGrantedAuthorityRepository authGrantedAuthorityRepository;
-*/
 
-    /*       @Autowired
-           private PasswordEncoder passwordEncoder;
-   */
-    // initialize the user in DB
     @Bean
     public CommandLineRunner initializeJpaData() {
         return (args) -> {
-            System.out.println("application started");
+            System.out.println("application started - commandLineRunner ");
+
+
 
             //authorities initialisation
             Authority authSuper = new Authority("SUPER");
@@ -90,6 +78,7 @@ public class DBInitializer {
 
             roleAssocRepository.save(roleAssoc1);
             roleAssocRepository.save(roleAssoc2);
+
 
 
      /*           user.setUsername("user2");

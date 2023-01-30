@@ -18,12 +18,12 @@ public class MainController {
     AuthorityRepository authRepo;
 
     @GetMapping("/login")
-public User login(@AuthenticationPrincipal User user){
+    public User login(@AuthenticationPrincipal User user) {
         return user;
     }
 
     @GetMapping("/authorities")
-    public Iterable getAuthorities(){
+    public Iterable getAuthorities() {
         return authRepo.findAll();
 
     }

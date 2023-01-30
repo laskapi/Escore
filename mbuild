@@ -1,0 +1,7 @@
+./gradlew bootJar
+mkdir -p build/dependency && (cd build/dependency; jar -xf ../libs/*.jar)
+docker stop $(docker ps -q --filter "ancestor=escore")
+docker rm $(docker ps -a -q --filter "ancestor=escore")
+docker rmi escore
+docker build -t escore .
+docker run -v escoredbfold:/escoredbfold -p8080:8080 escore

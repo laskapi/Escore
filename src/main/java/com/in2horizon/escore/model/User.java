@@ -17,28 +17,33 @@ import java.util.Set;
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor(access = AccessLevel.PUBLIC, force = true)
 
-@Setter
-@Getter
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "password", "email"})})
 public class User implements UserDetails {
 
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Setter
+    @Getter
     @NonNull
     private String username;
 
+    @Setter
+    @Getter
     @NonNull
     private String password;
 
+    @Setter
+    @Getter
     @NonNull
     private String email;
 
-@NonNull
-//    @ElementCollection
-
-@ManyToMany(/*mappedBy = "authority"*/)
+    @NonNull
+    @ManyToMany(fetch = FetchType.EAGER/*,cascade = CascadeType.ALL*/)
+    @JoinTable(name = "user_authority", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "auth_id"))
     private Set<Authority> authorities;
 
 
@@ -72,11 +77,11 @@ public class User implements UserDetails {
   */
 
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
- //        List<Authority> result = roleAssocs.stream().map(it -> it.authority).distinct().toList();
-        return authorities;
+        //        List<Authority> result = roleAssocs.stream().map(it -> it.authority).distinct().toList();
+    //    return Set.of(new Authority("SUPER"));
+           return authorities;
     }
 
 

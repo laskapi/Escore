@@ -2,8 +2,11 @@ package com.in2horizon.escore.model;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -20,13 +23,9 @@ public class Authority implements GrantedAuthority {
 
     private final String authority;
 
-    /*@ManyToMany(mappedBy = "authorities")
-    private Set<User> users = new HashSet<>();
-    */
-
 /*
-    @OneToMany(mappedBy = "authority",cascade = CascadeType.PERSIST)
-    Set<CUA> competitionUserAuthorities;
+    @ManyToMany(mappedBy = "authorities")
+    private Set<User> users = new HashSet<>();
 */
 
 
