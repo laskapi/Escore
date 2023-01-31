@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,8 +22,11 @@ public class UserService {
 
     final String TAG="UserService: ";
 
-    public Iterable<User> getUsers() {
-        Iterable<User> users = userRepo.findAll();
+
+
+
+    public List<User> getUsers() {
+        List<User> users = userRepo.findAll();
         log.info(TAG+"loaded users: " + users);
         return users;
     }
@@ -36,34 +40,44 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<String> addUser(User user) {
+    public ResponseEntity<User> addUser(User user) {
+        if(user.getId()==null){
+            user.setId(-1L);
+        }
+
         User existing = userRepo.findById(user.getId()).orElse(null);
+        if(existing==null){
+            existing=userRepo.findByEmail(user.getEmail()).orElse(null);
+        }
+
         if (existing == null) {
             if (user.getUsername().isEmpty()
                     || user.getPassword().isEmpty()
                     || user.getEmail().isEmpty()) {
-                return new ResponseEntity<String>("Please fill all required fields", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity(HttpStatus.BAD_REQUEST);
             }
-            log.info(userRepo.save(user).toString());
-            return ResponseEntity.ok("User added");
+            User saved=userRepo.save(user);
+            log.info(saved.toString());
+            return ResponseEntity.ok(saved);
+
         }
-        return new ResponseEntity<String>("User already exists",HttpStatus.CONFLICT);
+        return new ResponseEntity(HttpStatus.CONFLICT);
+
     }
 
 
-    public ResponseEntity<String> updateUser( User user) {
+    public ResponseEntity<User> updateUser( User user) {
         User existingUser = userRepo.findById(user.getId()).orElse(null);
         if (existingUser != null) {
 
             existingUser.setUsername(user.getUsername());
             existingUser.setPassword(user.getPassword());
             existingUser.setEmail(user.getEmail());
-            //   existingUser.setAuthorities(user.getAuthorities());
 
-            userRepo.save(existingUser);
-            return ResponseEntity.ok("user updated");
+            User saved=userRepo.save(existingUser);
+            return ResponseEntity.ok(saved);
         }
-        return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity( HttpStatus.NOT_FOUND);
 
 
     }
@@ -72,9 +86,8 @@ public class UserService {
 
         Optional<User> user = userRepo.findById(id);
         if (user.isPresent()) {
-     //       if (roleRepo.findAllByUser(user.get()).isEmpty()) {
 
-            if(compRepo.findWhereContainsUser(user.get()).isEmpty()){
+            if(compRepo.findByUser(user.get()).isEmpty()){
 
                 userRepo.deleteById(id);
                 return new ResponseEntity(HttpStatus.OK);

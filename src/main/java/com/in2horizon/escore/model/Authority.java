@@ -1,17 +1,15 @@
 package com.in2horizon.escore.model;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Data
-//@EqualsAndHashCode(exclude = "users")
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 
@@ -22,12 +20,6 @@ public class Authority implements GrantedAuthority {
     private Long id;
 
     private final String authority;
-
-/*
-    @ManyToMany(mappedBy = "authorities")
-    private Set<User> users = new HashSet<>();
-*/
-
 
     @Override
     public String getAuthority() {

@@ -2,7 +2,6 @@ package com.in2horizon.escore.service;
 
 import com.in2horizon.escore.model.Competition;
 import com.in2horizon.escore.model.CompetitionRepository;
-import com.in2horizon.escore.model.RoleAssoc;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -24,19 +21,14 @@ public class CompetitionService {
 
     final String TAG = "CompetitionSerice: ";
 
-    public Iterable<Competition> getCompetitions() {
-        log.info(TAG + "comps::entering ");
-        Iterable<Competition> comps = compRepo.findAll();
-        comps = excludeHiddenCompetition(comps);
-        log.info(TAG + "comps:: " + comps);
+    public List<Competition> getCompetitions() {
+        List<Competition> comps = compRepo.findAll();
         return comps;
     }
 
     public ResponseEntity<Competition> getCompetition(Long id) {
         Optional<Competition> comp = compRepo.findById(id);
-        if (comp.get().getName().equals(Competition.HIDDEN)) {
-            throw new NoSuchElementException();
-        }
+
         try {
             return ResponseEntity.ok(comp.orElseThrow());
         } catch (NoSuchElementException e) {
@@ -44,47 +36,39 @@ public class CompetitionService {
         }
     }
 
-    public ResponseEntity<String> addCompetition(Competition comp) {
+    public ResponseEntity<Competition> addCompetition(Competition comp) {
         Competition existing = compRepo.findById(comp.getId()).orElse(null);
         if (existing == null) {
-            /*if (comp.getName().isEmpty())
-
-                    || comp.getPassword().isEmpty()
-                    || comp.getEmail().isEmpty())
+            if (comp.getName().isEmpty() || comp.getAdmin()==null)
             {
-                return new ResponseEntity<String>("Please fill all required fields", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
             }
-            */
-            log.info(compRepo.save(comp).toString());
-            return ResponseEntity.ok("Competition added");
+
+            Competition saved=compRepo.save(comp);
+            log.info(saved.toString());
+            return ResponseEntity.ok(saved);
         }
-        return new ResponseEntity<String>("Competition already exists", HttpStatus.CONFLICT);
+        return new ResponseEntity(HttpStatus.CONFLICT);
     }
 
     @Transactional
-    public ResponseEntity<String> updateCompetition(Competition comp) {
+    public ResponseEntity<Competition> updateCompetition(Competition comp) {
         Competition existing = compRepo.findById(comp.getId()).orElse(null);
         if (existing != null) {
             existing.setName(comp.getName());
             existing.setAdmin(comp.getAdmin());
             existing.setUsers(comp.getUsers());
-            log.info("saved Users for competition: "+compRepo.save(existing).getUsers().toString());
-            return ResponseEntity.ok("user updated");
+            Competition saved=compRepo.save(existing);
+            log.info("saved Users for competition: "+ saved.getUsers());
+            return ResponseEntity.ok(saved);
         }
-        return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
 
 
     }
 
     public ResponseEntity<Void> deleteCompetition(Long id) {
         try {
-          /*  Competition comp = (compRepo.findById(id)).get();
-            List<RoleAssoc> assocs = roleAssocRepo.findAllByCompetition(comp);
-            assocs.forEach(roleAssocRepo::delete);
-
-            compRepo.delete(comp);
-          */
-
             compRepo.deleteById(id);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
@@ -93,10 +77,4 @@ public class CompetitionService {
 
     }
 
-
-
-    Iterable<Competition> excludeHiddenCompetition(Iterable<Competition> comps) {
-        return StreamSupport.stream(comps.spliterator(), false).filter(c -> !c.getName().equals(Competition.HIDDEN)).collect(Collectors.toList());
-
-    }
 }

@@ -20,18 +20,15 @@ public class DBInitializer {
     AuthorityRepository authRepository;
     @Autowired
     CompetitionRepository compRepository;
-    @Autowired
-    RoleAssocRepository roleAssocRepository;
+
 
     @Autowired
     PasswordEncoder encoder;
 
     @Bean
-    public CommandLineRunner initializeJpaData() {
+    public CommandLineRunner initDB() {
         return (args) -> {
             System.out.println("application started - commandLineRunner ");
-
-
 
             //authorities initialisation
             Authority authSuper = new Authority("SUPER");
@@ -56,28 +53,14 @@ public class DBInitializer {
                     "delete@in2horizon.com",  Set.of(authAdmin));
             userRepository.save(user3);
 
-            Competition hidden = new Competition( Competition.HIDDEN);
-            compRepository.save(hidden);
 
 
-            Competition competition1 = new Competition( "violin"/*, user1*/);
+            Competition competition1 = new Competition( "violin",user1,Set.of(user2,user3));
             compRepository.save(competition1);
-            Competition competition2 = new Competition( "cello"/*, user2*/);
+            Competition competition2 = new Competition( "cello",user2,Set.of(user1,user2));
             compRepository.save(competition2);
 
 
-
-            //-------------for superuser
-            RoleAssoc superAssoc= new RoleAssoc(hidden,user1,authSuper);
-            roleAssocRepository.save(superAssoc);
-            //--------------------------
-
-
-            RoleAssoc roleAssoc1=new RoleAssoc(competition1,user1,authAdmin);
-            RoleAssoc roleAssoc2=new RoleAssoc(competition2,user2,authAdmin);
-
-            roleAssocRepository.save(roleAssoc1);
-            roleAssocRepository.save(roleAssoc2);
 
 
 

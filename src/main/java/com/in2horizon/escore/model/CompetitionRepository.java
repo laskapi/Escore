@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface CompetitionRepository extends CrudRepository<Competition,Long> {
 
-  //  List<Competition> findByAdminUsername(String username);
-    //List<Competition> findByAdminId(Long id);
-
     @Query("SELECT c from Competition c WHERE ?1 MEMBER of c.users OR ?1 = c.admin")
-    List<Competition> findWhereContainsUser(User user);
+    List<Competition> findByUser(User user);
+
+    @Override
+    List<Competition> findAll();
 }
 

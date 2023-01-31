@@ -3,7 +3,6 @@ package com.in2horizon.escore.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -14,11 +13,8 @@ import java.util.Set;
 
 @Table(name = "competitions")
 public class Competition {
-    public Competition(String name) {
-        this.name = name;
-    }
 
-    public static final String HIDDEN = "";
+
 
 
 
@@ -31,11 +27,8 @@ public class Competition {
     private String name;
 
 
-    /*@Column(columnDefinition = "boolean default false")
-    private final Boolean archived = false;
-*/
     @NonNull
-    @ManyToOne()//(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne()
     private User admin;
 
     @NonNull
@@ -48,16 +41,9 @@ public class Competition {
                     @JoinColumn(name = "user_id", referencedColumnName = "id",
                             nullable = false, updatable = false)}
     )
-    private Set<User> users;// = new HashSet<>();
+    private Set<User> users;
 
 
-//        @ManyToMany(mappedBy = "competitions", fetch = FetchType.LAZY)
-    //       private Set<User> users = new HashSet<>();
-
-    /*
-        @OneToMany(mappedBy = "competition",cascade = CascadeType.PERSIST)
-        Set<CUA> competitionUserAuthorities;
-    */
 
     @Override
     public int hashCode() {

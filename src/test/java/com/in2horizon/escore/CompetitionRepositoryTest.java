@@ -2,9 +2,8 @@ package com.in2horizon.escore;
 
 import com.in2horizon.escore.model.*;
 
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +14,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -57,21 +59,29 @@ public class CompetitionRepositoryTest {
         user3=userRepo.save(user3);
 
         comp1 = new Competition("comp1", user1, Set.of( user3));
-        comp2 = new Competition( "comp2", user1, Set.of(user1, user2));
+        comp2 = new Competition( "comp2", user3, Set.of(user1, user2));
 
         comp1=compRepo.save(comp1);
         comp2=compRepo.save(comp2);
 
     }
 
-    @Test
-    public void findWhereContainsUserByIdShouldReturnCompetition() {
-        List<Competition> result = compRepo.findWhereContainsUser(user3);
-   //     log.info("zawartość result: "+ result.get(0).toString()+" :: "+comp1.toString());
-        Assertions.assertTrue(result.contains(comp1));
+    @AfterEach
+    public void tearDown(){
+        compRepo.deleteAll();
+        userRepo.deleteAll();
+        authRepo.deleteAll();
+    }
 
-        result = compRepo.findWhereContainsUser(user2);
-        Assertions.assertFalse(result.contains(comp1));
+    @Test
+    public void findByUser_whenContainsAsAdmin_returnsCompetition() {
+        List<Competition> result = compRepo.findByUser(user3);
+        assertTrue(result.contains(comp2));
+    }
+    @Test
+    public void findByUser_whenContainsInUsers_returnsCompetition() {
+        List<Competition> result = compRepo.findByUser(user2);
+        assertTrue(result.contains(comp2));
 
     }
 }

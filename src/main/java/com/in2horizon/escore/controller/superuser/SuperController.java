@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequestMapping("/super")
 @RestController
 public class SuperController {
@@ -18,7 +20,7 @@ public class SuperController {
 
 
     @GetMapping("/users")
-    public Iterable<User> getUsers() {
+    public List<User> getUsers() {
         return userService.getUsers();
     }
 
@@ -28,12 +30,12 @@ public class SuperController {
     }
 
     @PostMapping(value = "/users", produces = "application/json")
-    public ResponseEntity<String> addUser(@RequestBody User user) {
+    public ResponseEntity<User> addUser(@RequestBody User user) {
         return userService.addUser(user);
     }
 
     @PutMapping("/users")
-    public ResponseEntity<String> updateUser(@RequestBody User user) {
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
 
@@ -43,7 +45,7 @@ public class SuperController {
     }
 
     @GetMapping("/competitions")
-    public Iterable<Competition> getCompetitions() {
+    public List<Competition> getCompetitions() {
         return compService.getCompetitions();
     }
 
@@ -53,12 +55,12 @@ public class SuperController {
     }
 
     @PostMapping(value = "/competitions")
-    public ResponseEntity<String> addCompetition(@RequestBody Competition comp) {
+    public ResponseEntity<Competition> addCompetition(@RequestBody Competition comp) {
         return compService.addCompetition(comp);
     }
 
     @PutMapping("/competitions")
-    public ResponseEntity<String> updateCompetition(@RequestBody Competition comp) {
+    public ResponseEntity<Competition> updateCompetition(@RequestBody Competition comp) {
         return compService.updateCompetition(comp);
     }
 

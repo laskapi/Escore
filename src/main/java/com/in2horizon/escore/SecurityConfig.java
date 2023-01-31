@@ -29,7 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-      auth.userDetailsService(userDetailsService);
+        auth.userDetailsService(userDetailsService);
 
        /* auth.jdbcAuthentication().dataSource(dataSource).usersByUsernameQuery("select username,password,enabled "
                 + "from users "
@@ -48,7 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -56,23 +55,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/h2-console/**")
                 .permitAll()
                 .antMatchers("/super/**")
-                  .hasAnyAuthority("SUPER")
+                .hasAnyAuthority("SUPER")
                 .antMatchers("/**")
-                .hasAnyAuthority("SUPER","ADMIN")
-               // .permitAll()
-                 .and().httpBasic();
-        //        .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login");
-                //.and().logout((logout) -> logout.permitAll());
+                .hasAnyAuthority("SUPER", "ADMIN")
+                .and().httpBasic();
 
 
-      //     http.csrf()
-      //.ignoringAntMatchers("/h2-console/**");
-
-
-        http.cors();//.and().
-                http.csrf().disable();
+        http.cors();
+        http.csrf().disable();
         http.headers().frameOptions().disable();
-      //  http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+        //  http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
 
 
